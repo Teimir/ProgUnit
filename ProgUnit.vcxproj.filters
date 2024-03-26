@@ -21,10 +21,16 @@
     <ClCompile Include="src\Tester.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="ComIface.cpp">
+      <Filter>Файлы ресурсов</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Header_Ts.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ComIface.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
