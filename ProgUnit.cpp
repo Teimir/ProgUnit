@@ -1,6 +1,11 @@
-﻿#include <windows.h>
+﻿#define _CRT_SECURE_NO_WARNINGS 
+
+#include <windows.h>
 #include <tchar.h>
 #include <stdio.h>
+//Локальные заголовки
+#include "src/Header_Ts.h"
+
 
 void PrintCommState(DCB dcb)
 {
@@ -15,11 +20,16 @@ void PrintCommState(DCB dcb)
 
 int _tmain(int argc, TCHAR* argv[])
 {
+    int numOfTests = 0;
     DCB dcb;
     HANDLE hCom;
     BOOL fSuccess;
     byte data[] = { 0x1b, 0x1c, 0x12, 0x25 };
     byte buffer = 0;
+
+    printf("Set number of tests: ");
+    scanf("%d", &numOfTests);
+
     //TCHAR *pcCommPort = TEXT("COM8"); //  Most systems have a COM1 port
 
     //  Open a handle to the specified com port.
@@ -82,12 +92,12 @@ int _tmain(int argc, TCHAR* argv[])
     }
     int c = 0;
     //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < numOfTests; i++) {
         WriteFile(hCom, &data[i % 4], 1, 0, 0);
         Sleep(100);
         ReadFile(hCom, &buffer, 1, 0, 0);
         printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
-        printf("%d  ", i);
+        printf("%d  ", i+1);
         printf(data[i % 4] == buffer ? "YES\n" : "NO\n");
         c = data[i % 4] != buffer ? c + 1 : c;
         Sleep(100);
