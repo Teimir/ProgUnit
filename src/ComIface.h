@@ -9,6 +9,8 @@ public:
     HANDLE PortHandle = INVALID_HANDLE_VALUE;
     int ComNum = 0;
     DCB dcb;
+    bool IsOpen = false;
+    DWORD BaudRate;
     ComIface(byte ComNum, DWORD BaudRate = CBR_9600);
     void ChangeRate(DWORD NewBaudRate);
     DWORD Write(byte* data, int count);

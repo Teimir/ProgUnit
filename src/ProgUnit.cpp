@@ -9,11 +9,25 @@
 int _tmain(int argc, TCHAR* argv[])
 {
     int numOfTests = 0;
-    ComIface comiface(3);
-    comiface.Open();
+    ComIface comiface(0);
     byte data[] = { 0x1b, 0x1c, 0x12, 0x25 };
     byte buffer = 0;
-
+    for (int i = 0; i < 256; i++) {
+        comiface.ComNum = i;
+        if (comiface.Open()) {
+            printf("COM%D id avalible!", i);
+            comiface.Close();
+            numOfTests++;
+        }
+    }
+    if (!numOfTests) {
+        printf("No one COM-port is avalible");
+        exit(0);
+    }
+    printf("Set number of port: ");
+    scanf("%d", &numOfTests);
+    comiface.ComNum = numOfTests;
+    comiface.Open();
     printf("Set number of tests: ");
     scanf("%d", &numOfTests);
     comiface.PrintState();
