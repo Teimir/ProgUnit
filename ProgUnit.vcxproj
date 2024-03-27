@@ -127,8 +127,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ProgUnit.cpp" />
     <ClCompile Include="src\ComIface.cpp" />
+    <ClCompile Include="src\ProgUnit.cpp" />
     <ClCompile Include="src\Tester.cpp" />
   </ItemGroup>
   <ItemGroup>
