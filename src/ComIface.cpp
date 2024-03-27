@@ -3,11 +3,16 @@
 #include <stdio.h>
 #include "ComIface.h"
 
-
 ComIface::ComIface(byte ComNum, DWORD BaudRate) {
-    wchar_t strbuffer[11];
     this->ComNum = ComNum;
-    swprintf_s(strbuffer, L"\\\\.\\COM%d", ComNum);
+    this->BaudRate = BaudRate;
+    this->IsOpen = false;
+};
+
+void ComIface::Open() {
+    this->IsOpen = true;
+    wchar_t strbuffer[11];
+    swprintf_s(strbuffer, L"\\\\.\\COM%d", this->ComNum);
     this->PortHandle = CreateFileW(strbuffer,
         GENERIC_READ | GENERIC_WRITE,
         0,      //  must be opened with exclusive-access
@@ -25,7 +30,7 @@ ComIface::ComIface(byte ComNum, DWORD BaudRate) {
         printf("GetCommState failed with error %d.\n", GetLastError());
         exit(2);
     }
-    this->dcb.BaudRate = BaudRate;     //  baud rate
+    this->dcb.BaudRate = this->BaudRate;     //  baud rate
     this->dcb.ByteSize = 8;             //  data size, xmit and rcv
     this->dcb.Parity = NOPARITY;      //  parity bit
     this->dcb.StopBits = ONESTOPBIT;    //  stop bit
@@ -33,13 +38,16 @@ ComIface::ComIface(byte ComNum, DWORD BaudRate) {
         printf("SetCommState failed with error %d.\n", GetLastError());
         exit(3);
     }
-};
+}
 
 void ComIface::ChangeRate(DWORD BaudRate) {
-    this->dcb.BaudRate = BaudRate;
-    if (!SetCommState(this->PortHandle, &this->dcb)) {
-        printf("SetCommState failed with error %d.\n", GetLastError());
-        exit(3);
+    this->BaudRate = BaudRate;
+    if(this->IsOpen){
+        this->dcb.BaudRate = BaudRate;
+        if (!SetCommState(this->PortHandle, &this->dcb)) {
+            printf("SetCommState failed with error %d.\n", GetLastError());
+            exit(3);
+        }
     }
 }
 
@@ -64,5 +72,6 @@ void ComIface::PrintState() {
 }
 
 void ComIface::Close() {
+    this->IsOpen = false;
     CloseHandle(this->PortHandle);
 }
