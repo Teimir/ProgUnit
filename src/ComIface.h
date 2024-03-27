@@ -10,6 +10,7 @@ public:
     int ComNum = 0;
     bool IsOpen = false;
     DCB dcb;
+    DWORD BaudRate;
     ComIface(byte ComNum, DWORD BaudRate = CBR_9600);
     void ChangeRate(DWORD NewBaudRate);
     DWORD Write(byte* data, int count);

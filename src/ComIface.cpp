@@ -5,7 +5,7 @@
 
 ComIface::ComIface(byte ComNum, DWORD BaudRate) {
     this->ComNum = ComNum;
-    this->dcb.BaudRate = BaudRate;
+    this->BaudRate = BaudRate;
     this->IsOpen = false;
 };
 
@@ -33,7 +33,8 @@ void ComIface::Open() {
         getchar();
         exit(2);
     }
-    this->dcb.BaudRate = this->dcb.BaudRate;     //  baud rate
+    //this->dcb.BaudRate = this->dcb.BaudRate;     //  baud rate
+    this->dcb.BaudRate = BaudRate;
     this->dcb.ByteSize = 8;             //  data size, xmit and rcv
     this->dcb.Parity = NOPARITY;      //  parity bit
     this->dcb.StopBits = ONESTOPBIT;    //  stop bit

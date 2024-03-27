@@ -9,7 +9,7 @@
 int _tmain(int argc, TCHAR* argv[])
 {
     int numOfTests = 0;
-    ComIface comiface(8);
+    ComIface comiface(8, CBR_9600);
     byte data[] = { 0x1b, 0x1c, 0x12, 0x25 };
     byte buffer = 0;
 
