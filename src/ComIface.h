@@ -16,6 +16,6 @@ public:
     DWORD Write(byte* data, int count);
     DWORD Read(byte* buffer, int count);
     void PrintState();
-    void Open();
+    bool Open();
     void Close();
 };
