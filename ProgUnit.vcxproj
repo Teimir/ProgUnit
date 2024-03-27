@@ -127,12 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ComIface.cpp" />
     <ClCompile Include="ProgUnit.cpp" />
+    <ClCompile Include="src\ComIface.cpp" />
     <ClCompile Include="src\Tester.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ComIface.h" />
+    <ClInclude Include="src\ComIface.h" />
     <ClInclude Include="src\Header_Ts.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

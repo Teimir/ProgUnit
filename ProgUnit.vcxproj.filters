@@ -21,7 +21,7 @@
     <ClCompile Include="src\Tester.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="ComIface.cpp">
+    <ClCompile Include="src\ComIface.cpp">
       <Filter>Файлы ресурсов</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,7 +29,7 @@
     <ClInclude Include="src\Header_Ts.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="ComIface.h">
+    <ClInclude Include="src\ComIface.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

@@ -4,7 +4,7 @@
 #include <tchar.h>
 #include <stdio.h>
 //Локальные заголовки
-#include "ComIface.h"
+#include "src\\ComIface.h"
 
 int _tmain(int argc, TCHAR* argv[])
 {
