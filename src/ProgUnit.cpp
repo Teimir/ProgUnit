@@ -15,7 +15,7 @@ int _tmain(int argc, TCHAR* argv[])
     for (int i = 0; i < 256; i++) {
         comiface.ComNum = i;
         if (comiface.Open()) {
-            printf("COM%D id avalible!", i);
+            printf("COM %d id avalible! \n", i);
             comiface.Close();
             numOfTests++;
         }
