@@ -8,6 +8,7 @@ class ComIface {
 public:
     HANDLE PortHandle = INVALID_HANDLE_VALUE;
     int ComNum = 0;
+    bool IsOpen = false;
     DCB dcb;
     ComIface(byte ComNum, DWORD BaudRate = CBR_9600);
     void ChangeRate(DWORD NewBaudRate);
