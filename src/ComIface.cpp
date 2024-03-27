@@ -9,44 +9,33 @@ ComIface::ComIface(byte ComNum, DWORD BaudRate) {
     this->IsOpen = false;
 };
 
-void ComIface::Open() {
+bool ComIface::Open() {
     this->IsOpen = true;
     wchar_t strbuffer[11];
-    //swprintf_s(strbuffer, L"\\\\.\\COM%d", this->ComNum);
-   //this->PortHandle = CreateFileW(strbuffer,
-    this->PortHandle = CreateFileW(L"\\\\.\\COM8",
+    swprintf_s(strbuffer, L"\\\\.\\COM%d", this->ComNum);
+    this->PortHandle = CreateFileW(strbuffer,
         GENERIC_READ | GENERIC_WRITE,
         0,      //  must be opened with exclusive-access
         NULL,   //  default security attributes
         OPEN_EXISTING, //  must use OPEN_EXISTING
         0,      //  not overlapped I/O
         NULL); //  hTemplate must be NULL for comm devices
-    if (this->PortHandle == INVALID_HANDLE_VALUE)
-    {
-        printf("CreateFile failed with error %d.\n", GetLastError());
-        getchar();
-        exit(1);
-    }
     this->dcb.DCBlength = sizeof(DCB);
-    if (!GetCommState(this->PortHandle, &this->dcb)) {
-        printf("GetCommState failed with error %d.\n", GetLastError());
-        getchar();
-        exit(2);
+    if (this->PortHandle == INVALID_HANDLE_VALUE || !GetCommState(this->PortHandle, &this->dcb)) {
+        return false;
     }
-    //this->dcb.BaudRate = this->dcb.BaudRate;     //  baud rate
-    this->dcb.BaudRate = BaudRate;
+    this->dcb.BaudRate = this->BaudRate;     //  baud rate
     this->dcb.ByteSize = 8;             //  data size, xmit and rcv
     this->dcb.Parity = NOPARITY;      //  parity bit
     this->dcb.StopBits = ONESTOPBIT;    //  stop bit
     if (!SetCommState(this->PortHandle, &this->dcb)) {
-        printf("SetCommState failed with error %d.\n", GetLastError());
-        getchar();
-        exit(3);
+        return false;
     }
+    return true;
 }
 
 void ComIface::ChangeRate(DWORD BaudRate) {
-    this->dcb.BaudRate = BaudRate;
+    this->BaudRate = BaudRate;
     if(this->IsOpen){
         this->dcb.BaudRate = BaudRate;
         if (!SetCommState(this->PortHandle, &this->dcb)) {
