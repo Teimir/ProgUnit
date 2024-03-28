@@ -43,7 +43,7 @@ int _tmain(int argc, TCHAR* argv[])
         c = data[i % 4] != buffer ? c + 1 : c;
         Sleep(100);
     }
-    printf("Errors - %d\n", c);
+    printf("Errors - %d / Tests - %d\n", c, numOfTests);
     comiface.Close();
     getchar();
     return (0);
