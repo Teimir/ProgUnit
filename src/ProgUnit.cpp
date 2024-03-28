@@ -38,8 +38,14 @@ int _tmain(int argc, TCHAR* argv[])
     //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
     for (int i = 0; i < numOfTests; i++) {
         comiface.Write(&data[i % 4], 1);
-        Sleep(4);
+        if (!comiface.Write(&data[i % 4], 1)) {
+            printf("Write failed!\t");
+        };
+        Sleep(2);
         comiface.Read(&buffer, 1);
+        if (!comiface.Read(&buffer, 1)) {
+            printf("Read failed!\t");
+        };
         printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
         printf("%d  ", i+1);
         printf(data[i % 4] == buffer ? "YES\n" : "NO\n");
@@ -63,8 +69,14 @@ int _tmain(int argc, TCHAR* argv[])
     //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
     for (int i = 0; i < numOfTests; i++) {
         comiface.Write(&data[i % 4], 1);
+        if (!comiface.Write(&data[i % 4], 1)) {
+            printf("Write failed!\t");
+        };
         Sleep(4);
         comiface.Read(&buffer, 1);
+        if (!comiface.Read(&buffer, 1)) {
+            printf("Read failed!\t");
+        };
         printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
         printf("%d  ", i + 1);
         printf(data[i % 4] == buffer ? "YES\n" : "NO\n");
