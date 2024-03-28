@@ -8,9 +8,12 @@
 
 int _tmain(int argc, TCHAR* argv[])
 {
+    int spd = 9600;
     int numOfTests = 0;
     ComIface comiface(0);
     byte data[] = { 0x1b, 0x1c, 0x12, 0x25 };
+    byte sw_ch[] = { 0xff, 0xf2 };
+    byte rw_ch[] = { 0xff, 0xf1 };
     byte buffer = 0;
     for (int i = 0; i < 256; i++) {
         comiface.ComNum = i;
@@ -35,16 +38,51 @@ int _tmain(int argc, TCHAR* argv[])
     //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
     for (int i = 0; i < numOfTests; i++) {
         comiface.Write(&data[i % 4], 1);
-        Sleep(1500);
+        Sleep(4);
         comiface.Read(&buffer, 1);
         printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
         printf("%d  ", i+1);
         printf(data[i % 4] == buffer ? "YES\n" : "NO\n");
         c = data[i % 4] != buffer ? c + 1 : c;
-        Sleep(100);
     }
     printf("Errors - %d / Tests - %d\n", c, numOfTests);
+    
+    
+    comiface.Write(&sw_ch[0], 1);
+    Sleep(4);
+    comiface.Read(&buffer, 1);
+    printf("recieved - %x     ", buffer);
+    comiface.Write(&sw_ch[1], 1);
+    Sleep(4);
+    comiface.Read(&buffer, 1);
+    printf("recieved - %x     ", buffer);
+
+    comiface.ChangeRate(CBR_115200);
+
+    c = 0;
+    //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
+    for (int i = 0; i < numOfTests; i++) {
+        comiface.Write(&data[i % 4], 1);
+        Sleep(4);
+        comiface.Read(&buffer, 1);
+        printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
+        printf("%d  ", i + 1);
+        printf(data[i % 4] == buffer ? "YES\n" : "NO\n");
+        c = data[i % 4] != buffer ? c + 1 : c;
+    }
+    printf("Errors - %d / Tests - %d\n", c, numOfTests);
+
+    comiface.Write(&rw_ch[0], 1);
+    Sleep(4);
+    comiface.Read(&buffer, 1);
+    printf("recieved - %x     ", buffer);
+    comiface.Write(&rw_ch[1], 1);
+    Sleep(4);
+    comiface.Read(&buffer, 1);
+    printf("recieved - %x     ", buffer);
+
     comiface.Close();
+
     getchar();
     return (0);
 }
