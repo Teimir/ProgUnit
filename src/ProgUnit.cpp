@@ -35,7 +35,7 @@ int _tmain(int argc, TCHAR* argv[])
     //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
     for (int i = 0; i < numOfTests; i++) {
         comiface.Write(&data[i % 4], 1);
-        Sleep(100);
+        Sleep(1500);
         comiface.Read(&buffer, 1);
         printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
         printf("%d  ", i+1);
