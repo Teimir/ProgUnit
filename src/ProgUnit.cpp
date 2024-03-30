@@ -30,6 +30,8 @@ int _tmain(int argc, TCHAR* argv[])
     printf("Set number of port: ");
     scanf("%d", &numOfTests);
     comiface.ComNum = numOfTests;
+    //comiface.BaudRate = CBR_115200;
+    //comiface.BaudRate = CBR_4800;
     comiface.Open();
     printf("Set number of tests: ");
     scanf("%d", &numOfTests);
@@ -40,16 +42,20 @@ int _tmain(int argc, TCHAR* argv[])
         comiface.Write(&data[i % 4], 1);
         if (!comiface.Write(&data[i % 4], 1)) {
             printf("Write failed!\t");
+            break;
         };
-        Sleep(2);
+        Sleep(10);
         comiface.Read(&buffer, 1);
         if (!comiface.Read(&buffer, 1)) {
             printf("Read failed!\t");
+            printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
+            break;
         };
         printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
         printf("%d  ", i+1);
         printf(data[i % 4] == buffer ? "YES\n" : "NO\n");
         c = data[i % 4] != buffer ? c + 1 : c;
+        Sleep(10);
     }
     printf("Errors - %d / Tests - %d\n", c, numOfTests);
     
@@ -71,11 +77,14 @@ int _tmain(int argc, TCHAR* argv[])
         comiface.Write(&data[i % 4], 1);
         if (!comiface.Write(&data[i % 4], 1)) {
             printf("Write failed!\t");
+            break;
         };
         Sleep(4);
         comiface.Read(&buffer, 1);
         if (!comiface.Read(&buffer, 1)) {
             printf("Read failed!\t");
+            printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
+            break;
         };
         printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
         printf("%d  ", i + 1);

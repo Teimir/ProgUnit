@@ -13,6 +13,8 @@ bool ComIface::Open() {
     this->IsOpen = true;
     wchar_t strbuffer[11];
     swprintf_s(strbuffer, L"\\\\.\\COM%d", this->ComNum);
+
+    
     this->PortHandle = CreateFileW(strbuffer,
         GENERIC_READ | GENERIC_WRITE,
         0,      //  must be opened with exclusive-access
@@ -24,6 +26,14 @@ bool ComIface::Open() {
     if (this->PortHandle == INVALID_HANDLE_VALUE || !GetCommState(this->PortHandle, &this->dcb)) {
         return false;
     }
+
+    GetCommTimeouts(PortHandle, &this->timeouts);
+    this->timeouts.ReadIntervalTimeout = MAXDWORD; // Maximum time between two characters in milliseconds
+    this->timeouts.ReadTotalTimeoutConstant = 100; // Total time (constant part) for reading in milliseconds
+    this->timeouts.ReadTotalTimeoutMultiplier = 0;  // Total time multiplier in milliseconds per byte read
+
+    SetCommTimeouts(PortHandle, &this->timeouts);
+
     this->dcb.BaudRate = this->BaudRate;     //  baud rate
     this->dcb.ByteSize = 8;             //  data size, xmit and rcv
     this->dcb.Parity = NOPARITY;      //  parity bit
