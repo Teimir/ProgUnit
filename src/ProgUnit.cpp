@@ -12,6 +12,7 @@ bool auto_connection(ComIface& c, int to = 256, int from = 0) {
         if (c.open(i, false)) {
             printf("Connected to COM %d\n", i);
             return true;
+            c.close();
         }
     }
     printf("There is no COM id avalible from %d to %d\n", from, to);
@@ -71,7 +72,7 @@ int _tmain(int argc, TCHAR* argv[]) {
     byte rw_ch[] = { 0xff, 0xf1 };
     byte buffer = 0;
     for (int i = 0; i < 256; i++) {
-        if (comiface.open(i, 0, false)) {
+        if (comiface.open(i, false)) {
             printf("COM %d id avalible! \n", i);
             comiface.close();
             numOfTests++;
@@ -142,7 +143,7 @@ int _tmain(int argc, TCHAR* argv[]) {
     printf("recieved - %x     ", buffer);
 
     //mass_test_sync(comiface);
-
+    comiface.close();
     getchar();
     return (0);
 }
