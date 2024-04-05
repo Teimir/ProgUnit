@@ -103,19 +103,28 @@ int _tmain(int argc, TCHAR* argv[]) {
         c = data[i % 4] != buffer ? c + 1 : c;
     }
     printf("Errors - %d / Tests - %d\n", c, numOfTests);
-    
+    /*
     
     comiface.write(&sw_ch[0], 1);
-    Sleep(4);
+
     comiface.read(&buffer, 1);
     printf("recieved - %x     ", buffer);
+
+    Sleep(2000);
     comiface.write(&sw_ch[1], 1);
-    Sleep(4);
+    comiface.write(&sw_ch[1], 1);
+    comiface.set_rate(CBR_115200);
+    comiface.log_state();
+
+
     comiface.read(&buffer, 1);
     printf("recieved - %x     ", buffer);
 
-    comiface.set_rate(CBR_115200);
-
+    if (buffer == 0) {
+        Sleep(2000);
+        comiface.write(&sw_ch[1], 1);
+    }
+    
     c = 0;
     //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
     for (int i = 0; i < numOfTests; i++) {
@@ -141,7 +150,7 @@ int _tmain(int argc, TCHAR* argv[]) {
     Sleep(4);
     comiface.read(&buffer, 1);
     printf("recieved - %x     ", buffer);
-
+    */
     //mass_test_sync(comiface);
     comiface.close();
     getchar();

@@ -38,6 +38,7 @@ bool ComIface::open(int _port_num, bool log) {
     dcb.ByteSize = 8;           //  data size, xmit and rcv
     dcb.Parity = NOPARITY;      //  parity bit
     dcb.StopBits = ONESTOPBIT;  //  stop bit
+    dcb.BaudRate = CBR_9600;
     //set port settings
     if (!SetCommState(port_handle, &dcb)) {
         if (log) {
