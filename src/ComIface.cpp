@@ -2,7 +2,6 @@
 #include <tchar.h>
 #include <stdio.h>
 #include "ComIface.h"
-
 ComIface::ComIface(DWORD BaudRate, DWORD read_delay) : read_delay(read_delay) {
     dcb.BaudRate = BaudRate;
     dcb.DCBlength = sizeof(DCB);
@@ -32,6 +31,7 @@ bool ComIface::open(int _port_num, bool log) {
         if (log) {
             printf("GetCommState failed with error %d.\n", GetLastError());
         }
+        CloseHandle(port_handle);
         return false;
     }
     //set dcb
@@ -43,8 +43,19 @@ bool ComIface::open(int _port_num, bool log) {
         if (log) {
             printf("SetCommState failed with error %d.\n", GetLastError());
         }
+        CloseHandle(port_handle);
         return false;
     }
+    //set port timings
+    COMMTIMEOUTS timings{
+        10,     /* Maximum time between read chars. */
+        1,      /* Multiplier of characters.        */
+        100,    /* Constant in milliseconds.        */
+        0,      /* Multiplier of characters.        */
+        0       /* Constant in milliseconds.        */
+    };
+    SetCommTimeouts(port_handle, &timings);
+    PurgeComm(port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
     //set port state
     open_state = true;
     port_num = _port_num;
@@ -73,23 +84,25 @@ DWORD ComIface::write(byte* data, int count) {
     return NumOfWritten;
 }
 DWORD ComIface::read(byte* buffer, int count) {
-    DWORD NumberOfBytesRead, status;
+    DWORD NumberOfBytesRead = 0, status = 0;
 	OVERLAPPED overlap = { 0 };
     overlap.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
     if (!overlap.hEvent) {
         printf("CreateEvent failed with error %d.\n", GetLastError());
         return 0;
     }
-    if (!ReadFile(port_handle, buffer, count, &NumberOfBytesRead, &overlap)) {
-        status = GetLastError();
-        if (status != ERROR_IO_PENDING) {
-            printf("ReadFile failed with error %d.\n", status);
-			CloseHandle(overlap.hEvent);
-            return 0;
-        }
-        NumberOfBytesRead = 0;
-        if (WaitForSingleObject(overlap.hEvent, read_delay) != WAIT_TIMEOUT) {
-            printf("OVERLAPPED event handle error\n");
+    if (SetCommMask(port_handle, EV_RXCHAR)) {
+        WaitCommEvent(port_handle, &status, &overlap);
+        status = WaitForSingleObject(overlap.hEvent, read_delay);
+        if (status == WAIT_OBJECT_0) {
+            ReadFile(port_handle, buffer, count, &NumberOfBytesRead, &overlap);
+            status = WaitForSingleObject(overlap.hEvent, read_delay);
+            if (status == WAIT_OBJECT_0) {
+                GetOverlappedResult(port_handle, &overlap, &NumberOfBytesRead, FALSE);
+            }
+            else {
+                printf("ReadFile failed with error %d.\n", GetLastError());
+            }
         }
     }
     CloseHandle(overlap.hEvent);
@@ -125,7 +138,4 @@ void ComIface::log_state() {
 }
 int ComIface::get_port_num() {
     return port_num;
-}
-HANDLE ComIface::get_handle() {
-    return port_handle;
 }

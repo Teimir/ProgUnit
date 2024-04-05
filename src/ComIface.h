@@ -19,7 +19,6 @@ class ComIface {
         bool is_open();
         void log_state();
         int get_port_num();
-        HANDLE get_handle(); //for WaitCommEvent
     protected:
         int port_num = 0;
         bool open_state = false;
