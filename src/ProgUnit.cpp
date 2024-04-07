@@ -155,7 +155,7 @@ int _tmain(int argc, TCHAR* argv[]) {
     Sleep(4);
     comiface.read(&buffer, 1);
     printf("recieved - %x     ", buffer);
-
+    */
     //mass_test_sync(comiface);
     comiface.close();
     getchar();
