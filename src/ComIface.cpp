@@ -5,6 +5,9 @@
 ComIface::ComIface(DWORD BaudRate, DWORD read_delay) : read_delay(read_delay) {
     dcb.BaudRate = BaudRate;
     dcb.DCBlength = sizeof(DCB);
+    dcb.ByteSize = 8;           //  data size, xmit and rcv
+    dcb.Parity = NOPARITY;      //  parity bit
+    dcb.StopBits = ONESTOPBIT;  //  stop bit
 };
 bool ComIface::open(int _port_num, bool log) {
     //create port name
@@ -27,23 +30,23 @@ bool ComIface::open(int _port_num, bool log) {
         }
         return false;
     }
+    //this overrides our dcb
+    //oh, this is bad...
+    /*
     if (!GetCommState(port_handle, &dcb)) {
         if (log) {
             printf("GetCommState failed with error %d.\n", GetLastError());
         }
-        CloseHandle(port_handle);
+        close();
         return false;
     }
-    //set dcb
-    dcb.ByteSize = 8;           //  data size, xmit and rcv
-    dcb.Parity = NOPARITY;      //  parity bit
-    dcb.StopBits = ONESTOPBIT;  //  stop bit
+    */
     //set port settings
     if (!SetCommState(port_handle, &dcb)) {
         if (log) {
             printf("SetCommState failed with error %d.\n", GetLastError());
         }
-        CloseHandle(port_handle);
+        close();
         return false;
     }
     //set port timings
@@ -57,7 +60,6 @@ bool ComIface::open(int _port_num, bool log) {
     SetCommTimeouts(port_handle, &timings);
     PurgeComm(port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
     //set port state
-    open_state = true;
     port_num = _port_num;
     return true;
 }
@@ -109,23 +111,24 @@ DWORD ComIface::read(byte* buffer, int count) {
     return NumberOfBytesRead;
 }
 void ComIface::close() {
-    open_state = false;
-    CloseHandle(port_handle);
+    if (!is_not_open()) {
+        CloseHandle(port_handle);
+        port_handle = INVALID_HANDLE_VALUE;
+    }
 }
 void ComIface::set_rate(DWORD BaudRate) {
     dcb.BaudRate = BaudRate;
-    if (open_state) {
+    if (!is_not_open()) {
         if (!SetCommState(port_handle, &dcb)) {
             printf("SetCommState failed with error %d.\n", GetLastError());
-            exit(3);
         }
     }
 }
 void ComIface::set_read_delay(DWORD _read_delay) {
     read_delay = _read_delay;
 }
-bool ComIface::is_open() {
-    return open_state;
+bool ComIface::is_not_open() {
+    return port_handle == INVALID_HANDLE_VALUE;
 }
 void ComIface::log_state() {
     printf(

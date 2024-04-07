@@ -20,7 +20,7 @@ bool auto_connection(ComIface& c, int to = 256, int from = 0) {
 }
 int mass_test_sync(ComIface& c) {
     int failures = 0;
-    if (c.is_open()) {
+    if (!c.is_not_open()) {
         byte buffer, i = 0;
         while (--i) {
             if (c.write(&i, 1)) {
@@ -80,42 +80,52 @@ int _tmain(int argc, TCHAR* argv[]) {
     }
     if (!numOfTests) {
         printf("No one COM-port is avalible");
-        exit(0);
+        exit(1);
     }
     printf("Set number of port: ");
     scanf("%d", &numOfTests);
     comiface.open(numOfTests);
+    if (comiface.is_not_open()) {
+        exit(2);
+    }
     printf("Set number of tests: ");
     scanf("%d", &numOfTests);
     comiface.log_state();
     int c = 0;
-    //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
-    for (int i = 0; i < numOfTests; i++) {
+    for (int i = 0; i < numOfTests; ++i) {
         if (!comiface.write(&data[i % 4], 1)) {
             printf("Write failed!\t");
         };
         if (!comiface.read(&buffer, 1)) {
             printf("Read failed!\t");
         };
-        printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
-        printf("%d  ", i+1);
-        printf(data[i % 4] == buffer ? "YES\n" : "NO\n");
+        printf(
+            "%d\tTranslated - %x,\trecieved - %x\t%s",
+            i,
+            data[i % 4],
+            buffer,
+            data[i % 4] == buffer ? "YES\n" : "NO\n"
+        );
         c = data[i % 4] != buffer ? c + 1 : c;
     }
     printf("Errors - %d / Tests - %d\n", c, numOfTests);
-    
-    
+
+
+    //change rate
     comiface.write(&sw_ch[0], 1);
-    Sleep(4);
+    Sleep(4); //is really needed?
     comiface.read(&buffer, 1);
-    printf("recieved - %x     ", buffer);
+    printf("recieved - %x     \n", buffer);
     comiface.write(&sw_ch[1], 1);
-    Sleep(4);
+    Sleep(4); //is really needed?
     comiface.read(&buffer, 1);
-    printf("recieved - %x     ", buffer);
+    printf("recieved - %x     \n", buffer);
 
     comiface.set_rate(CBR_115200);
+    comiface.log_state();
 
+
+    //continue test with other rate
     c = 0;
     //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
     for (int i = 0; i < numOfTests; i++) {
@@ -123,12 +133,16 @@ int _tmain(int argc, TCHAR* argv[]) {
             printf("Write failed!\t");
         };
         Sleep(4);
-        if (!comiface.read(&buffer, 1)) {
+        if (!comiface.read(&buffer, sizeof(buffer))) {
             printf("Read failed!\t");
         };
-        printf("Translated - %x, recieved - %x     ", data[i % 4], buffer);
-        printf("%d  ", i + 1);
-        printf(data[i % 4] == buffer ? "YES\n" : "NO\n");
+        printf(
+            "%d\tTranslated - %x,\trecieved - %x\t%s",
+            i,
+            data[i % 4],
+            buffer,
+            data[i % 4] == buffer ? "YES\n" : "NO\n"
+        );
         c = data[i % 4] != buffer ? c + 1 : c;
     }
     printf("Errors - %d / Tests - %d\n", c, numOfTests);
