@@ -115,25 +115,29 @@ int _tmain(int argc, TCHAR* argv[]) {
     comiface.write(&sw_ch[0], 1);
     Sleep(4); //is really needed?
     comiface.read(&buffer, 1);
-    printf("recieved - %x     \n", buffer);
-    comiface.write(&sw_ch[1], 1);
-    Sleep(4); //is really needed?
-    comiface.read(&buffer, 1);
-    printf("recieved - %x     \n", buffer);
+    printf("recieved - %x     ", buffer);
 
+
+    //comiface.write(&sw_ch[1], 1);
+    comiface.write(&sw_ch[1], 1);
+    comiface.read(&buffer, 1);
+    printf("recieved - %x     ", buffer);
+    
+    while (buffer == 0) {
+
+        comiface.write(&sw_ch[1], 1);
+        comiface.read(&buffer, 1);
+        printf("recieved - %x     ", buffer);
+    }
     comiface.set_rate(CBR_115200);
     comiface.log_state();
-
-
-    //continue test with other rate
     c = 0;
     //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
     for (int i = 0; i < numOfTests; i++) {
         if (!comiface.write(&data[i % 4], 1)) {
             printf("Write failed!\t");
         };
-        Sleep(4);
-        if (!comiface.read(&buffer, sizeof(buffer))) {
+        if (!comiface.read(&buffer, 1)) {
             printf("Read failed!\t");
         };
         printf(
@@ -148,14 +152,11 @@ int _tmain(int argc, TCHAR* argv[]) {
     printf("Errors - %d / Tests - %d\n", c, numOfTests);
 
     comiface.write(&rw_ch[0], 1);
-    Sleep(4);
     comiface.read(&buffer, 1);
     printf("recieved - %x     ", buffer);
     comiface.write(&rw_ch[1], 1);
-    Sleep(4);
     comiface.read(&buffer, 1);
     printf("recieved - %x     ", buffer);
-    */
     //mass_test_sync(comiface);
     comiface.close();
     getchar();
