@@ -113,21 +113,15 @@ int _tmain(int argc, TCHAR* argv[]) {
 
     //change rate
     comiface.write(&sw_ch[0], 1);
-    Sleep(4); //is really needed?
     comiface.read(&buffer, 1);
-    printf("recieved - %x     ", buffer);
-
-
-    //comiface.write(&sw_ch[1], 1);
+    printf("recieved - %x\t\n", buffer);
     comiface.write(&sw_ch[1], 1);
     comiface.read(&buffer, 1);
-    printf("recieved - %x     ", buffer);
-    
+    printf("recieved - %x\t\n", buffer);
     while (buffer == 0) {
-
         comiface.write(&sw_ch[1], 1);
         comiface.read(&buffer, 1);
-        printf("recieved - %x     ", buffer);
+        printf("recieved - %x\t\n", buffer);
     }
     comiface.set_rate(CBR_115200);
     comiface.log_state();
