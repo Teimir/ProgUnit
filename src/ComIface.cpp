@@ -52,10 +52,10 @@ bool ComIface::open(int _port_num, bool log) {
     //set port timings
     COMMTIMEOUTS timings{
         10,     /* Maximum time between read chars. */
-        1,      /* Multiplier of characters.        */
+        10,      /* Multiplier of characters.        */
         100,    /* Constant in milliseconds.        */
-        0,      /* Multiplier of characters.        */
-        0       /* Constant in milliseconds.        */
+        10,      /* Multiplier of characters.        */
+        10       /* Constant in milliseconds.        */
     };
     SetCommTimeouts(port_handle, &timings);
     PurgeComm(port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
