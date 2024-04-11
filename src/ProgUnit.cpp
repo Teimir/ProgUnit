@@ -4,9 +4,11 @@
 #include <tchar.h>
 #include <stdio.h>
 #include <algorithm>
+#include <thread>
 //Локальные заголовки
 #include "ComIface.h"
-
+#include "utils/include/exec_time.h"
+using namespace dte_utils;
 //can be used later
 bool auto_connection(ComIface& c, int to = 256, int from = 0) {
     for (int i = from; i < to; ++i) {
@@ -97,7 +99,10 @@ bool test(ComIface& c_rx, ComIface& c_tx, T* transmit, int N, int it_num = 0) {
 
 
 
-
+//In full - speed USB, the maximum packet size is 64 bytes
+//In high - speed USB, the maximum packet size is 512 bytes
+//internal port buffers (IN, OUT) can be changed - SetupComm
+//////////////////COMSTAT (remember it!)
 int _tmain(int argc, TCHAR* argv[]) {
     int numOfTests = 0;
     ComIface comiface(CBR_9600);
@@ -177,6 +182,36 @@ int _tmain(int argc, TCHAR* argv[]) {
 
 
     //mass_test_sync(comiface);
+    //critical way tests
+    std::thread ws([&comiface, edata]{
+        //WARNING: any write error will cause read error (and may even cause all next read iteration errors)
+        hpet wt;
+        int errors = 0;
+        for (int i = 0; i < 64; ++i) {
+            if (!comiface.write((byte*)edata + i, 1)) {
+                ++errors;
+            }
+        }
+        printf("WRITE\tTime: %d\tErrors - %d / Tests - %d\n", wt.get_ns_dt_strong().count(), errors, 64);
+    });
+    std::thread rs([&comiface, edata] {
+        //WARNING: any timing error will cause all next iteration fall into errors
+        hpet rt;
+        int errors = 0;
+        for (int i = 0; i < 64; ++i) {
+            byte buf;
+            if (!comiface.read(&buf + i, 1)) {
+                ++errors;
+            }
+            else if (buf != *((byte*)edata + i)) {
+                ++errors;
+            }
+        }
+        printf("READ\tTime: %d\tErrors - %d / Tests - %d\n", rt.get_ns_dt_strong().count(), errors, 64);
+    });
+    ws.join();
+    rs.join();
+
     comiface.close();
     getchar();
     return (0);

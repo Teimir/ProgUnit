@@ -130,10 +130,12 @@
     <ClCompile Include="src\ComIface.cpp" />
     <ClCompile Include="src\ProgUnit.cpp" />
     <ClCompile Include="src\Tester.cpp" />
+    <ClCompile Include="src\utils\source\exec_time.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ComIface.h" />
     <ClInclude Include="src\Header_Ts.h" />
+    <ClInclude Include="src\utils\include\exec_time.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -24,12 +24,18 @@
     <ClCompile Include="src\ProgUnit.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\source\exec_time.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Header_Ts.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="src\ComIface.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\include\exec_time.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
