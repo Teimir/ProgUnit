@@ -38,6 +38,7 @@ int _tmain(int argc, TCHAR* argv[])
     scanf("%d", &numOfTests);
     comiface.PrintState();
     
+<<<<<<< Updated upstream
     byte d[32] = { 0x1b, 0x1c, 0x12, 0x25, 0x1b, 0x1c, 0x12, 0x25,
         0x10, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
         0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
@@ -53,8 +54,18 @@ int _tmain(int argc, TCHAR* argv[])
     comiface.Write(d, 32);
 
     for (int i = 0; i < 32; i++) {
+=======
+    byte d[4098];
+    
+    for (int i = 0; i < 4098; i++) {
+        d[i] = i % 255;
+    }
+    //Test(comiface);
+    comiface.Write(d, 4098);
+    for (int i = 0; i < 4098; i++) {
+>>>>>>> Stashed changes
         comiface.Read(&buffer, 1);
-        printf("recieved - %x     \n", buffer);
+        printf("Translated - %x, recieved - %x     %d\n", d[i], buffer, i);
     }
 
     /*

@@ -37,7 +37,7 @@ bool ComIface::Open() {
     this->dcb.BaudRate = this->BaudRate;     //  baud rate
     this->dcb.ByteSize = 8;             //  data size, xmit and rcv
     this->dcb.Parity = NOPARITY;      //  parity bit
-    this->dcb.StopBits = ONESTOPBIT;    //  stop bit
+    this->dcb.StopBits = ONE5STOPBITS;    //  stop bit
     if (!SetCommState(this->PortHandle, &this->dcb)) {
         return false;
     }
