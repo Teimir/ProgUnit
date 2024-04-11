@@ -29,25 +29,27 @@ int _tmain(int argc, TCHAR* argv[])
         exit(0);
     }
     printf("Set number of port: ");
-    scanf("%d", &numOfTests);
-    comiface.ComNum = numOfTests;
+    //scanf("%d", &numOfTests);
+    comiface.ComNum = 10;
+    //comiface.ComNum = numOfTests;
     //comiface.BaudRate = CBR_115200;
     comiface.BaudRate = CBR_9600;
     comiface.Open();
-    printf("Set number of tests: ");
-    scanf("%d", &numOfTests);
+    printf("Number of tests -  %d", 4096 * 100);
     comiface.PrintState();
-    byte d[4098];
+    byte d[4096 * 100];
     
-    for (int i = 0; i < 4098; i++) {
+    for (int i = 0; i < 4096 * 100; i++) {
         d[i] = i % 255;
     }
+        comiface.Write(d, 4096 * 100);
+        for (int i = 0; i < 4096 * 100; i++) {
+            comiface.Read(&buffer, 1);
+            printf("Translated - %x, recieved - %x     %d\n", d[i], buffer, i);
+        }
     //Test(comiface);
-    comiface.Write(d, 4098);
-    for (int i = 0; i < 4098; i++) {
-        comiface.Read(&buffer, 1);
-        printf("Translated - %x, recieved - %x     %d\n", d[i], buffer, i);
-    }
+    
+
 
     /*
     comiface.Write(&sw_ch[0], 1);
