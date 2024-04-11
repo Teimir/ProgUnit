@@ -32,14 +32,24 @@ int _tmain(int argc, TCHAR* argv[])
     scanf("%d", &numOfTests);
     comiface.ComNum = numOfTests;
     //comiface.BaudRate = CBR_115200;
-    comiface.BaudRate = CBR_4800;
+    comiface.BaudRate = CBR_9600;
     comiface.Open();
     printf("Set number of tests: ");
     scanf("%d", &numOfTests);
     comiface.PrintState();
     
-    Test(comiface);
-    
+    byte d[8] = { 0x1b, 0x1c, 0x12, 0x25, 0x1b, 0x1c, 0x12, 0x25 };
+    comiface.Write(d, 8);
+
+    //Test(comiface);
+
+    for (int i = 0; i < 8; i++) {
+        Sleep(10);
+        comiface.Read(&buffer, 1);
+        printf("recieved - %x     \n", buffer);
+    }
+
+    /*
     comiface.Write(&sw_ch[0], 1);
     Sleep(4);
     comiface.Read(&buffer, 1);
@@ -62,7 +72,7 @@ int _tmain(int argc, TCHAR* argv[])
     Sleep(4);
     comiface.Read(&buffer, 1);
     printf("recieved - %x     ", buffer);
-
+    */
     comiface.Close();
 
     getchar();

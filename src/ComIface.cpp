@@ -33,7 +33,7 @@ bool ComIface::Open() {
     this->timeouts.ReadTotalTimeoutMultiplier = 0;  // Total time multiplier in milliseconds per byte read
 
     SetCommTimeouts(PortHandle, &this->timeouts);
-
+    SetupComm(PortHandle, 1024 * 8, 1024 * 8);
     this->dcb.BaudRate = this->BaudRate;     //  baud rate
     this->dcb.ByteSize = 8;             //  data size, xmit and rcv
     this->dcb.Parity = NOPARITY;      //  parity bit
@@ -57,7 +57,11 @@ void ComIface::ChangeRate(DWORD BaudRate) {
 
 DWORD ComIface::Write(byte* data, int count) {
     DWORD NumOfWritten;
-    WriteFile(this->PortHandle, data, count, &NumOfWritten, 0);
+    WriteFile(this->PortHandle, data, count, &NumOfWritten, NULL);
+    /*while (NumOfWritten != count) {
+        printf("%x     \n", NumOfWritten);
+        Sleep(10);
+    }*/
     return NumOfWritten;
 }
 
