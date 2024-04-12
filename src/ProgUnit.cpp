@@ -62,6 +62,35 @@ int mass_test_sync(ComIface& c) {
     }
     return failures;
 }
+
+int mass_test_sync2(ComIface& c) {
+    int failures = 0;
+    if (!c.is_not_open()) {
+        byte d[1024* 100];
+        byte buffer[1024 * 100];
+        for (int i = 0; i < 1024 * 100; i++) {
+            d[i] = i % 255;
+        }
+        int i = c.write(d, 1024 * 100);
+        printf("%d\n", i);
+        i = c.read(buffer, 1024 * 100);
+        printf("%d\n", i);
+        
+        for (int i = 0; i < 1024 * 100; i++) {
+            printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer[i], i, d[i] == buffer[i]);
+        }
+        
+        
+
+    }
+    else {
+        printf("Can`t test closed port\n");
+        failures = 256;
+    }
+    return failures;
+}
+
+
 /*
 * tests port RX-TX connection, N is array length, it_num is number of test
 */
@@ -141,6 +170,10 @@ int _tmain(int argc, TCHAR* argv[]) {
     printf("Set number of tests: ");
     scanf("%d", &numOfTests);
     comiface.log_state();
+    
+    mass_test_sync2(comiface);
+    /*
+    
     int c = 0;
     for (int i = 0; i < numOfTests; ++i) {
         c = test(comiface, comiface, &data[i % 4], 1, i) ? c + 1 : c;
@@ -160,6 +193,7 @@ int _tmain(int argc, TCHAR* argv[]) {
     //}
     comiface.set_rate(CBR_115200);
     comiface.log_state();
+    
     c = 0;
     //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
     for (int i = 0; i < numOfTests; i++) {
@@ -211,7 +245,7 @@ int _tmain(int argc, TCHAR* argv[]) {
     });
     ws.join();
     rs.join();
-
+    */
     comiface.close();
     getchar();
     return (0);
