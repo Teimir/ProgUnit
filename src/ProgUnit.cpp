@@ -73,20 +73,22 @@ int mass_test_sync2(ComIface& c) {
         for (int i = 0; i < countofbytes; i++) {
             d[i] = i % 255;
         }
-        int i = c.write(d, countofbytes);
-        //printf("%d\n", i);
-        /*
-        i = c.read(buffer, countofbytes);
+        int i = 0;
+        std::thread t1([&]() {
+            c.write(d, countofbytes);
+        });
+        t1.join();
         printf("%d\n", i);
         
         for (int i = 0; i < countofbytes; i++) {
+            i = c.read(&buffer[i], 1);
             if (d[i] != buffer[i]) {
                 printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer[i], i, d[i] == buffer[i]);
                 e_counter++;
             }
         }
         printf("Errors - %d / Tests - %d\n", e_counter, countofbytes);
-        */
+        
         Sleep(5000);
         COMSTAT stats;
         ClearCommError(c.port_handle, NULL, &stats);
