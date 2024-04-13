@@ -73,14 +73,6 @@ int mass_test_sync2(ComIface& c) {
         for (int i = 0; i < countofbytes; i++) {
             d[i] = i % 255;
         }
-        int read_bytes = 0;
-        bool state = true;
-        std::thread tr([&c, &read_bytes, &state](){
-            byte b;
-            while (state) {
-                read_bytes = c.read(&b, 1) ? read_bytes + 1 : read_bytes;
-            }
-        });
         int i = c.write(d, countofbytes);
         //printf("%d\n", i);
         /*
@@ -95,8 +87,10 @@ int mass_test_sync2(ComIface& c) {
         }
         printf("Errors - %d / Tests - %d\n", e_counter, countofbytes);
         */
-        state = false;
-        printf("Readed: %d\n", read_bytes);
+        Sleep(5000);
+        COMSTAT stats;
+        ClearCommError(c.port_handle, NULL, &stats);
+        printf("Readed: %d\n", stats.cbInQue);
     }
     else {
         printf("Can`t test closed port\n");
