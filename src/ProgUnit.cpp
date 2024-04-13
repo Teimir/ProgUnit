@@ -7,7 +7,6 @@
 #include <thread>
 //Локальные заголовки
 #include "ComIface.h"
-#include "utils/include/exec_time.h"
 using namespace dte_utils;
 //can be used later
 
@@ -31,7 +30,7 @@ int mass_test_sync(ComIface& c) {
         byte buffer, i = 0;
         while (--i) {
             if (c.write(&i, 1)) {
-                if (c.read(&buffer, 1)) {
+                if (c.read_byte(&buffer)) {
                     if (i != buffer) {
                         ++failures;
                     }
@@ -46,7 +45,7 @@ int mass_test_sync(ComIface& c) {
             printf("Translated - %02hhx,\trecieved - %02hhx\t\t%s\n", i, buffer, i == buffer ? "OK" : "FAIL");
         }
         if (c.write(&i, 1)) {
-            if (c.read(&buffer, 1)) {
+            if (c.read_byte(&buffer)) {
                 if (i != buffer) {
                     ++failures;
                 }
@@ -78,7 +77,7 @@ int mass_test_sync2(ComIface& c) {
         }
         int i = c.write(T, byte_num);
         printf("%d\n", i);
-        i = c.read(R, byte_num);
+        i = c.read_block(R, byte_num);
         printf("%d\n", i);
         for (int i = 0; i < byte_num; i++) {
             if (T[i] != R[i]) {
@@ -105,7 +104,7 @@ bool test(ComIface& c_rx, ComIface& c_tx, T* transmit, int N, int it_num = 0) {
     bool failed = true;
     DWORD state = c_tx.write(transmit, sizeof(T) * N);
     if (state == sizeof(T) * N) {
-        state = c_rx.read(recieve, 1);
+        state = c_rx.read_byte(recieve);
         if (state == sizeof(T) * N) {
             std::reverse(recieve, recieve + sizeof(T) * N);
             failed = memcmp(transmit, recieve, sizeof(T) * N);
@@ -179,10 +178,10 @@ int _tmain(int argc, TCHAR* argv[]) {
     mass_test_sync2(comiface);
     //change rate
     comiface.write(&sw_ch[0], 1);
-    comiface.read(&buffer, 1);
+    comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
     comiface.write(&sw_ch[1], 1);
-    comiface.read(&buffer, 1);
+    comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
     
     comiface.set_rate(CBR_115200);
@@ -192,10 +191,10 @@ int _tmain(int argc, TCHAR* argv[]) {
     //mass_test_sync2(comiface);
     //Restore
     comiface.write(&rw_ch[0], 1);
-    comiface.read(&buffer, 1);
+    comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
     comiface.write(&rw_ch[1], 1);
-    comiface.read(&buffer, 1);
+    comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
         
     /*
@@ -206,14 +205,14 @@ int _tmain(int argc, TCHAR* argv[]) {
     printf("Errors - %d / Tests - %d\n", c, numOfTests);
     //change rate
     comiface.write(&sw_ch[0], 1);
-    comiface.read(&buffer, 1);
+    comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
     comiface.write(&sw_ch[1], 1);
-    comiface.read(&buffer, 1);
+    comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
     //while (buffer == 0) {
     //    comiface.write(&sw_ch[1], 1);
-    //    comiface.read(&buffer, 1);
+    //    comiface.read_byte(&buffer);
     //    printf("recieved - %02hhx\t\n", buffer);
     //}
     comiface.set_rate(CBR_115200);
@@ -227,10 +226,10 @@ int _tmain(int argc, TCHAR* argv[]) {
     printf("Errors - %d / Tests - %d\n", c, numOfTests);
 
     comiface.write(&rw_ch[0], 1);
-    comiface.read(&buffer, 1);
+    comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
     comiface.write(&rw_ch[1], 1);
-    comiface.read(&buffer, 1);
+    comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
     c = 0;
     //test with 8 byte write/read
@@ -259,7 +258,7 @@ int _tmain(int argc, TCHAR* argv[]) {
         int errors = 0;
         for (int i = 0; i < 64; ++i) {
             byte buf;
-            if (!comiface.read(&buf + i, 1)) {
+            if (!comiface.read_byte(&buf + i)) {
                 ++errors;
             }
             else if (buf != *((byte*)edata + i)) {
