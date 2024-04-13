@@ -72,7 +72,11 @@ int mass_test_sync2(ComIface& c) {
         for (int i = 0; i < countofbytes; i++) {
             d[i] = i % 255;
         }
-        int i = c.write(d, countofbytes);
+        int i = 0;
+        std::thread t1([&](){
+            i = c.write(d, countofbytes);
+        });
+        t1.join();
         printf("%d\n", i);
         i = c.read(buffer, countofbytes);
         printf("%d\n", i);
