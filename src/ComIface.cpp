@@ -58,7 +58,7 @@ bool ComIface::open(int _port_num, bool log) {
         100       /* Constant in milliseconds.        */
     };
     SetCommTimeouts(port_handle, &timings);
-    SetupComm(port_handle, 1024, 1024);
+    SetupComm(port_handle, 102400, 102400);
     PurgeComm(port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
     //set port state
     port_num = _port_num;

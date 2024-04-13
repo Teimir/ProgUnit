@@ -20,9 +20,10 @@ class ComIface {
         bool is_not_open();
         void log_state();
         int get_port_num();
+        HANDLE port_handle = INVALID_HANDLE_VALUE;
     protected:
         int port_num = 0;
         DCB dcb;
         DWORD read_delay;
-        HANDLE port_handle = INVALID_HANDLE_VALUE;
+        
 };

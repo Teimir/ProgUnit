@@ -64,9 +64,10 @@ int mass_test_sync(ComIface& c) {
 }
 
 int mass_test_sync2(ComIface& c) {
-    int failures = 0;
+    int e_counter = 0;
+    PurgeComm(c.port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
+    const int countofbytes = 1024 * 67;
     if (!c.is_not_open()) {
-        const int countofbytes = 1024;
         byte d[countofbytes];
         byte buffer[countofbytes];
         for (int i = 0; i < countofbytes; i++) {
@@ -77,19 +78,23 @@ int mass_test_sync2(ComIface& c) {
             i = c.write(d, countofbytes);
         });
         t1.join();
-        printf("%d\n", i);
+        //printf("%d\n", i);
         i = c.read(buffer, countofbytes);
         printf("%d\n", i);
         
         for (int i = 0; i < countofbytes; i++) {
-            printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer[i], i, d[i] == buffer[i]);
+            if (d[i] != buffer[i]) {
+                printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer[i], i, d[i] == buffer[i]);
+                e_counter++;
+            }
         }
+        printf("Errors - %d / Tests - %d\n", e_counter, countofbytes);
     }
     else {
         printf("Can`t test closed port\n");
-        failures = 256;
+        e_counter = countofbytes;
     }
-    return failures;
+    return e_counter;
 }
 
 
@@ -173,7 +178,28 @@ int _tmain(int argc, TCHAR* argv[]) {
     scanf("%d", &numOfTests);
     comiface.log_state();
     
+    //mass_test_sync2(comiface);
+
+    //change rate
+    comiface.write(&sw_ch[0], 1);
+    comiface.read(&buffer, 1);
+    printf("recieved - %x\n", buffer);
+    comiface.write(&sw_ch[1], 1);
+    comiface.read(&buffer, 1);
+    printf("recieved - %x\n", buffer);
+
+    comiface.set_rate(CBR_115200);
+    comiface.log_state();
+
     mass_test_sync2(comiface);
+
+    comiface.write(&rw_ch[0], 1);
+    comiface.read(&buffer, 1);
+    printf("recieved - %x\n", buffer);
+    comiface.write(&rw_ch[1], 1);
+    comiface.read(&buffer, 1);
+    printf("recieved - %x\n", buffer);
+
     /*
     
     int c = 0;
