@@ -51,11 +51,11 @@ bool ComIface::open(int _port_num, bool log) {
     }
     //set port timings
     COMMTIMEOUTS timings{
-        100,     /* Maximum time between read chars. */
-        100,      /* Multiplier of characters.        */
-        100,    /* Constant in milliseconds.        */
-        100,      /* Multiplier of characters.        */
-        100       /* Constant in milliseconds.        */
+        500,     /* Maximum time between read chars. */
+        500,      /* Multiplier of characters.        */
+        500,    /* Constant in milliseconds.        */
+        500,      /* Multiplier of characters.        */
+        500       /* Constant in milliseconds.        */
     };
     SetCommTimeouts(port_handle, &timings);
     SetupComm(port_handle, 1024, 1024);

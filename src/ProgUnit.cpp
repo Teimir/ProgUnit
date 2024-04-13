@@ -10,6 +10,11 @@
 #include "utils/include/exec_time.h"
 using namespace dte_utils;
 //can be used later
+
+byte d[1024* 1024];
+byte buffer2[1024* 1024];
+
+
 bool auto_connection(ComIface& c, int to = 256, int from = 0) {
     for (int i = from; i < to; ++i) {
         if (c.open(i, false)) {
@@ -66,18 +71,22 @@ int mass_test_sync(ComIface& c) {
 int mass_test_sync2(ComIface& c) {
     int failures = 0;
     if (!c.is_not_open()) {
-        byte d[1024* 100];
-        byte buffer[1024 * 100];
-        for (int i = 0; i < 1024 * 100; i++) {
+
+        for (int i = 0; i < 1024; i++) {
             d[i] = i % 255;
         }
-        int i = c.write(d, 1024 * 100);
+        //printf("%x \n", d[1024-1]);
+        int i = c.write(d, 1024);
         printf("%d\n", i);
-        i = c.read(buffer, 1024 * 100);
+        Sleep(1000);
+        i = c.read(buffer2, 1024);
+        while (i == 0) i = c.read(buffer2, 1024);
+        
         printf("%d\n", i);
         
-        for (int i = 0; i < 1024 * 100; i++) {
-            printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer[i], i, d[i] == buffer[i]);
+        for (int i = 0; i < 1024; i++) {
+            if (d[i] != buffer2[i]) printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer2[i], i, d[i] == buffer2[i]);
+            //printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer2[i], i, d[i] == buffer2[i]);
         }
         
         
@@ -170,10 +179,30 @@ int _tmain(int argc, TCHAR* argv[]) {
     printf("Set number of tests: ");
     scanf("%d", &numOfTests);
     comiface.log_state();
-    
+
     mass_test_sync2(comiface);
-    /*
+    //change rate
+    comiface.write(&sw_ch[0], 1);
+    comiface.read(&buffer, 1);
+    printf("recieved - %x\n", buffer);
+    comiface.write(&sw_ch[1], 1);
+    comiface.read(&buffer, 1);
+    printf("recieved - %x\n", buffer);
     
+    comiface.set_rate(CBR_115200);
+    comiface.log_state();
+
+
+    mass_test_sync2(comiface);
+    //Restore
+    comiface.write(&rw_ch[0], 1);
+    comiface.read(&buffer, 1);
+    printf("recieved - %x\n", buffer);
+    comiface.write(&rw_ch[1], 1);
+    comiface.read(&buffer, 1);
+    printf("recieved - %x\n", buffer);
+        
+    /*
     int c = 0;
     for (int i = 0; i < numOfTests; ++i) {
         c = test(comiface, comiface, &data[i % 4], 1, i) ? c + 1 : c;
