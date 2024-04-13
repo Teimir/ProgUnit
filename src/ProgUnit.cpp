@@ -79,7 +79,8 @@ int mass_test_sync2(ComIface& c) {
         });
         t1.join();
         //printf("%d\n", i);
-        i = c.read(buffer, countofbytes);
+        i = c.read(buffer, countofbytes/2);
+        i = c.read(&buffer[countofbytes/2], countofbytes/2);
         printf("%d\n", i);
         
         for (int i = 0; i < countofbytes; i++) {
