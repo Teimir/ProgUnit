@@ -79,12 +79,19 @@ int mass_test_sync2(ComIface& c) {
         });
         t1.join();
         printf("%d\n", i);
-        
-        for (int i = 0; i < countofbytes; i++) {
-            i = c.read(&buffer[i], 1);
-            if (d[i] != buffer[i]) {
-                printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer[i], i, d[i] == buffer[i]);
-                e_counter++;
+        COMSTAT stats;
+        for (int i = 0; i < countofbytes;) {
+            ClearCommError(c.port_handle, NULL, &stats);
+            int InQ = stats.cbInQue;
+            if (InQ != 0) {
+                int CoR = c.read(&buffer[i], InQ);
+                for(int j = 0; j < i; j++)
+                    if (d[i + j] != buffer[i + j]) {
+                        printf("Translated - %x, recieved - %x     %d == %d\n", d[i + j], buffer[i + j], i + j, d[i + j] == buffer[i + j]);
+                        e_counter++;
+                    }
+                i += InQ;
+                //printf("%d of %d\n", i, countofbytes);
             }
         }
         printf("Errors - %d / Tests - %d\n", e_counter, countofbytes);
