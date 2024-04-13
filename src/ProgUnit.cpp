@@ -26,60 +26,21 @@ bool auto_connection(ComIface& c, int to = 256, int from = 0) {
 }
 int mass_test_sync(ComIface& c) {
     int failures = 0;
-    if (!c.is_not_open()) {
-        byte buffer, i = 0;
-        while (--i) {
-            if (c.write(&i, 1)) {
-                if (c.read_byte(&buffer)) {
-                    if (i != buffer) {
-                        ++failures;
-                    }
-                }
-                else {
-                    ++failures;
-                }
-            }
-            else {
-                ++failures;
-            }
-            printf("Translated - %02hhx,\trecieved - %02hhx\t\t%s\n", i, buffer, i == buffer ? "OK" : "FAIL");
-        }
-        if (c.write(&i, 1)) {
-            if (c.read_byte(&buffer)) {
-                if (i != buffer) {
-                    ++failures;
-                }
-            }
-            else {
-                ++failures;
-            }
-        }
-        else {
-            ++failures;
-        }
-        printf("Translated - %02hhx,\trecieved - %02hhx\t\t%s\n", i, buffer, i == buffer ? "OK" : "FAIL");
-    }
-    else {
-        printf("Can`t test closed port\n");
-        failures = 256;
-    }
-    return failures;
-}
-
-int mass_test_sync2(ComIface& c) {
-    int failures = 0;
     const int byte_num = 1024;
     if (!c.is_not_open()) {
+        //declare R & T
         byte T[byte_num];
         byte R[byte_num];
+        //fill T
         for (int i = 0; i < byte_num; i++) {
             T[i] = i % 255;
         }
-        int i = c.write(T, byte_num);
-        printf("%d\n", i);
-        i = c.read_block(R, byte_num);
-        printf("%d\n", i);
-        for (int i = 0; i < byte_num; i++) {
+        //prepare port buffer
+        c.set_buffer(byte_num, byte_num, true);
+        //read & write
+        printf("WRITED: %d\n", c.write(T, byte_num));
+        printf("READED: %d\n", c.read_block(R, byte_num));
+        for (int i = 0; i < byte_num; ++i) {
             if (T[i] != R[i]) {
                 printf("%d\tTranslated - %02hhx,\trecieved - %02hhx\tERROR\n", i, T[i], R[i]);
                 ++failures;
@@ -153,29 +114,12 @@ int _tmain(int argc, TCHAR* argv[]) {
     byte rw_ch[] = { 0xff, 0xf1 };
     byte buffer = 0;
     byte ebuffer[8];
-    for (int i = 0; i < 256; ++i) {
-        if (comiface.open(i, false)) {
-            printf("COM %d id avalible! \n", i);
-            comiface.close();
-            ++numOfTests;
-        }
-    }
-    if (!numOfTests) {
+    auto_connection(comiface);
+    if (comiface.is_not_open()) {
         printf("No one COM-port is avalible\n");
-        comiface.open(1);
         exit(1);
     }
-    printf("Set number of port: ");
-    scanf("%d", &numOfTests);
-    comiface.open(numOfTests);
-    if (comiface.is_not_open()) {
-        exit(2);
-    }
-    printf("Set number of tests: ");
-    scanf("%d", &numOfTests);
     comiface.log_state();
-
-    mass_test_sync2(comiface);
     //change rate
     comiface.write(&sw_ch[0], 1);
     comiface.read_byte(&buffer);
@@ -183,12 +127,11 @@ int _tmain(int argc, TCHAR* argv[]) {
     comiface.write(&sw_ch[1], 1);
     comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
-    
+    //log
     comiface.set_rate(CBR_115200);
     comiface.log_state();
-
-
-    //mass_test_sync2(comiface);
+    //mass test
+    mass_test_sync(comiface);
     //Restore
     comiface.write(&rw_ch[0], 1);
     comiface.read_byte(&buffer);

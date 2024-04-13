@@ -12,44 +12,43 @@ bool ComIface::open(int _port_num, bool log) {
     wchar_t strbuffer[11];
     swprintf_s(strbuffer, 11, L"\\\\.\\COM%d", _port_num);
     //create port handle
-port_handle = CreateFileW(
-    strbuffer,
-    GENERIC_READ | GENERIC_WRITE,
-    0,                              //must be opened with exclusive-access
-    NULL,                           //default security attributes
-    OPEN_EXISTING,                  //must use OPEN_EXISTING
-    FILE_FLAG_OVERLAPPED,           //async I/O
-    NULL                            //hTemplate must be NULL for comm devices
-);
-//check if handle is valid
-if (port_handle == INVALID_HANDLE_VALUE) {
-    if (log) {
-        printf("CreateFileW failed with error %d.\n", GetLastError());
+    port_handle = CreateFileW(
+        strbuffer,
+        GENERIC_READ | GENERIC_WRITE,
+        0,                              //must be opened with exclusive-access
+        NULL,                           //default security attributes
+        OPEN_EXISTING,                  //must use OPEN_EXISTING
+        FILE_FLAG_OVERLAPPED,           //async I/O
+        NULL                            //hTemplate must be NULL for comm devices
+    );
+    //check if handle is valid
+    if (port_handle == INVALID_HANDLE_VALUE) {
+        if (log) {
+            printf("CreateFileW failed with error %d.\n", GetLastError());
+        }
+        return false;
     }
-    return false;
-}
-//set port settings
-if (!SetCommState(port_handle, &dcb)) {
-    if (log) {
-        printf("SetCommState failed with error %d.\n", GetLastError());
+    //set port settings
+    if (!SetCommState(port_handle, &dcb)) {
+        if (log) {
+            printf("SetCommState failed with error %d.\n", GetLastError());
+        }
+        close();
+        return false;
     }
-    close();
-    return false;
-}
-//set port timings
-COMMTIMEOUTS timings{
-    10,      /* Maximum time between read chars. */
-    10,     /* Multiplier of characters.        */
-    10,     /* Constant in milliseconds.        */
-    10,      /* Multiplier of characters.        */
-    10       /* Constant in milliseconds.        */
-};
-SetCommTimeouts(port_handle, &timings);
-SetupComm(port_handle, 1024, 1024);
-PurgeComm(port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
-//set port state
-port_num = _port_num;
-return true;
+    //set port timings
+    COMMTIMEOUTS timings{
+        10,      /* Maximum time between read chars. */
+        10,     /* Multiplier of characters.        */
+        10,     /* Constant in milliseconds.        */
+        10,      /* Multiplier of characters.        */
+        10       /* Constant in milliseconds.        */
+    };
+    SetCommTimeouts(port_handle, &timings);
+    PurgeComm(port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
+    //set port state
+    port_num = _port_num;
+    return true;
 }
 DWORD ComIface::write(byte* data, int count) {
     DWORD NumOfWritten, status;
@@ -144,6 +143,12 @@ void ComIface::set_rate(DWORD BaudRate) {
 }
 void ComIface::set_read_delay(DWORD _read_delay) {
     read_delay = _read_delay;
+}
+void ComIface::set_buffer(DWORD r_size, DWORD t_size, bool purge) {
+    SetupComm(port_handle, r_size, t_size);
+    if (purge) {
+        PurgeComm(port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
+    }
 }
 bool ComIface::is_not_open() {
     return port_handle == INVALID_HANDLE_VALUE;
