@@ -66,22 +66,20 @@ int mass_test_sync(ComIface& c) {
 int mass_test_sync2(ComIface& c) {
     int failures = 0;
     if (!c.is_not_open()) {
-        byte d[1024* 100];
-        byte buffer[1024 * 100];
-        for (int i = 0; i < 1024 * 100; i++) {
+        const int countofbytes = 1024;
+        byte d[countofbytes];
+        byte buffer[countofbytes];
+        for (int i = 0; i < countofbytes; i++) {
             d[i] = i % 255;
         }
-        int i = c.write(d, 1024 * 100);
+        int i = c.write(d, countofbytes);
         printf("%d\n", i);
-        i = c.read(buffer, 1024 * 100);
+        i = c.read(buffer, countofbytes);
         printf("%d\n", i);
         
-        for (int i = 0; i < 1024 * 100; i++) {
+        for (int i = 0; i < countofbytes; i++) {
             printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer[i], i, d[i] == buffer[i]);
         }
-        
-        
-
     }
     else {
         printf("Can`t test closed port\n");
