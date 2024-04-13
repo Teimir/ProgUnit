@@ -11,8 +11,7 @@
 using namespace dte_utils;
 //can be used later
 
-byte d[1024* 1024];
-byte buffer2[1024* 1024];
+
 
 
 bool auto_connection(ComIface& c, int to = 256, int from = 0) {
@@ -44,7 +43,7 @@ int mass_test_sync(ComIface& c) {
             else {
                 ++failures;
             }
-            printf("Translated - %x,\trecieved - %x\t\t%s\n", i, buffer, i == buffer ? "OK" : "FAIL");
+            printf("Translated - %02hhx,\trecieved - %02hhx\t\t%s\n", i, buffer, i == buffer ? "OK" : "FAIL");
         }
         if (c.write(&i, 1)) {
             if (c.read(&buffer, 1)) {
@@ -59,7 +58,7 @@ int mass_test_sync(ComIface& c) {
         else {
             ++failures;
         }
-        printf("Translated - %x,\trecieved - %x\t\t%s\n", i, buffer, i == buffer ? "OK" : "FAIL");
+        printf("Translated - %02hhx,\trecieved - %02hhx\t\t%s\n", i, buffer, i == buffer ? "OK" : "FAIL");
     }
     else {
         printf("Can`t test closed port\n");
@@ -70,31 +69,27 @@ int mass_test_sync(ComIface& c) {
 
 int mass_test_sync2(ComIface& c) {
     int failures = 0;
+    const int byte_num = 1024;
     if (!c.is_not_open()) {
-
-        for (int i = 0; i < 1024; i++) {
-            d[i] = i % 255;
+        byte T[byte_num];
+        byte R[byte_num];
+        for (int i = 0; i < byte_num; i++) {
+            T[i] = i % 255;
         }
-        //printf("%x \n", d[1024-1]);
-        int i = c.write(d, 1024);
+        int i = c.write(T, byte_num);
         printf("%d\n", i);
-        Sleep(1000);
-        i = c.read(buffer2, 1024);
-        while (i == 0) i = c.read(buffer2, 1024);
-        
+        i = c.read(R, byte_num);
         printf("%d\n", i);
-        
-        for (int i = 0; i < 1024; i++) {
-            if (d[i] != buffer2[i]) printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer2[i], i, d[i] == buffer2[i]);
-            //printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer2[i], i, d[i] == buffer2[i]);
+        for (int i = 0; i < byte_num; i++) {
+            if (T[i] != R[i]) {
+                printf("%d\tTranslated - %02hhx,\trecieved - %02hhx\tERROR\n", i, T[i], R[i]);
+                ++failures;
+            }
         }
-        
-        
-
     }
     else {
         printf("Can`t test closed port\n");
-        failures = 256;
+        failures = byte_num;
     }
     return failures;
 }
@@ -154,20 +149,21 @@ int _tmain(int argc, TCHAR* argv[]) {
         {0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f},
         {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37},
         {0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f}
-    }; //to do - fill
+    };
     byte sw_ch[] = { 0xff, 0xf2 };
     byte rw_ch[] = { 0xff, 0xf1 };
     byte buffer = 0;
     byte ebuffer[8];
-    for (int i = 0; i < 256; i++) {
+    for (int i = 0; i < 256; ++i) {
         if (comiface.open(i, false)) {
             printf("COM %d id avalible! \n", i);
             comiface.close();
-            numOfTests++;
+            ++numOfTests;
         }
     }
     if (!numOfTests) {
-        printf("No one COM-port is avalible");
+        printf("No one COM-port is avalible\n");
+        comiface.open(1);
         exit(1);
     }
     printf("Set number of port: ");
@@ -184,23 +180,23 @@ int _tmain(int argc, TCHAR* argv[]) {
     //change rate
     comiface.write(&sw_ch[0], 1);
     comiface.read(&buffer, 1);
-    printf("recieved - %x\n", buffer);
+    printf("recieved - %02hhx\n", buffer);
     comiface.write(&sw_ch[1], 1);
     comiface.read(&buffer, 1);
-    printf("recieved - %x\n", buffer);
+    printf("recieved - %02hhx\n", buffer);
     
     comiface.set_rate(CBR_115200);
     comiface.log_state();
 
 
-    mass_test_sync2(comiface);
+    //mass_test_sync2(comiface);
     //Restore
     comiface.write(&rw_ch[0], 1);
     comiface.read(&buffer, 1);
-    printf("recieved - %x\n", buffer);
+    printf("recieved - %02hhx\n", buffer);
     comiface.write(&rw_ch[1], 1);
     comiface.read(&buffer, 1);
-    printf("recieved - %x\n", buffer);
+    printf("recieved - %02hhx\n", buffer);
         
     /*
     int c = 0;
@@ -211,14 +207,14 @@ int _tmain(int argc, TCHAR* argv[]) {
     //change rate
     comiface.write(&sw_ch[0], 1);
     comiface.read(&buffer, 1);
-    printf("recieved - %x\n", buffer);
+    printf("recieved - %02hhx\n", buffer);
     comiface.write(&sw_ch[1], 1);
     comiface.read(&buffer, 1);
-    printf("recieved - %x\n", buffer);
+    printf("recieved - %02hhx\n", buffer);
     //while (buffer == 0) {
     //    comiface.write(&sw_ch[1], 1);
     //    comiface.read(&buffer, 1);
-    //    printf("recieved - %x\t\n", buffer);
+    //    printf("recieved - %02hhx\t\n", buffer);
     //}
     comiface.set_rate(CBR_115200);
     comiface.log_state();
@@ -232,10 +228,10 @@ int _tmain(int argc, TCHAR* argv[]) {
 
     comiface.write(&rw_ch[0], 1);
     comiface.read(&buffer, 1);
-    printf("recieved - %x\n", buffer);
+    printf("recieved - %02hhx\n", buffer);
     comiface.write(&rw_ch[1], 1);
     comiface.read(&buffer, 1);
-    printf("recieved - %x\n", buffer);
+    printf("recieved - %02hhx\n", buffer);
     c = 0;
     //test with 8 byte write/read
     for (int i = 0; i < numOfTests; ++i) {

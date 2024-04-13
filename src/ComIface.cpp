@@ -5,9 +5,9 @@
 ComIface::ComIface(DWORD BaudRate, DWORD read_delay) : read_delay(read_delay) {
     dcb.BaudRate = BaudRate;
     dcb.DCBlength = sizeof(DCB);
-    dcb.ByteSize = 8;           //  data size, xmit and rcv
-    dcb.Parity = NOPARITY;      //  parity bit
-    dcb.StopBits = ONE5STOPBITS;  //  stop bit
+    dcb.ByteSize = DATABITS_8;  //  data size, xmit and rcv
+    dcb.Parity = PARITY_NONE;   //  parity bit
+    dcb.StopBits = ONESTOPBIT;  //  stop bit
 };
 bool ComIface::open(int _port_num, bool log) {
     //create port name
@@ -51,11 +51,11 @@ bool ComIface::open(int _port_num, bool log) {
     }
     //set port timings
     COMMTIMEOUTS timings{
-        500,     /* Maximum time between read chars. */
-        500,      /* Multiplier of characters.        */
-        500,    /* Constant in milliseconds.        */
-        500,      /* Multiplier of characters.        */
-        500       /* Constant in milliseconds.        */
+        1,      /* Maximum time between read chars. */
+        10,     /* Multiplier of characters.        */
+        10,     /* Constant in milliseconds.        */
+        0,      /* Multiplier of characters.        */
+        0       /* Constant in milliseconds.        */
     };
     SetCommTimeouts(port_handle, &timings);
     SetupComm(port_handle, 1024, 1024);
@@ -121,6 +121,7 @@ void ComIface::set_rate(DWORD BaudRate) {
     dcb.BaudRate = BaudRate;
     if (!is_not_open()) {
         if (!SetCommState(port_handle, &dcb)) {
+            GetCommState(port_handle, &dcb);    //return back to our rate
             printf("SetCommState failed with error %d.\n", GetLastError());
         }
     }

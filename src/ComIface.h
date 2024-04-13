@@ -6,7 +6,7 @@
 
 class ComIface {
     public:
-        ComIface(DWORD BaudRate = CBR_9600, DWORD read_delay = 500);
+        ComIface(DWORD BaudRate = CBR_9600, DWORD read_delay = 150); //~1024 byte transmitions will be near 106,(6)ms
         ComIface(const ComIface&) = delete;
         //why close() in ~ComIface() cause crashes?
         DWORD write(byte* data, int count);
