@@ -66,7 +66,7 @@ int mass_test_sync(ComIface& c) {
 int mass_test_sync2(ComIface& c) {
     int e_counter = 0;
     PurgeComm(c.port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
-    const int countofbytes = 1024 * 67;
+    const int countofbytes = 1024 * 68;
     if (!c.is_not_open()) {
         byte d[countofbytes];
         byte buffer[countofbytes];
@@ -153,7 +153,7 @@ int _tmain(int argc, TCHAR* argv[]) {
         {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37},
         {0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f}
     }; //to do - fill
-    byte sw_ch[] = { 0xff, 0xf2 };
+    byte sw_ch[] = { 0xff, 0xf3 };
     byte rw_ch[] = { 0xff, 0xf1 };
     byte buffer = 0;
     byte ebuffer[8];
@@ -188,10 +188,9 @@ int _tmain(int argc, TCHAR* argv[]) {
     comiface.read(&buffer, 1);
     printf("recieved - %x\n", buffer);
 
-    comiface.set_rate(CBR_115200);
+    comiface.set_rate(CBR_256000);
     comiface.log_state();
-
-    mass_test_sync2(comiface);
+    for(int i = 0; i < 15;i++) mass_test_sync2(comiface);
 
     comiface.write(&rw_ch[0], 1);
     comiface.read(&buffer, 1);
