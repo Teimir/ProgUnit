@@ -66,7 +66,7 @@ int mass_test_sync(ComIface& c) {
 int mass_test_sync2(ComIface& c) {
     int e_counter = 0;
     PurgeComm(c.port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
-    const int countofbytes = 1024 * 67;
+    const int countofbytes = 1024 * 68;
     if (!c.is_not_open()) {
         byte d[countofbytes];
         byte buffer[countofbytes];
@@ -74,32 +74,21 @@ int mass_test_sync2(ComIface& c) {
             d[i] = i % 255;
         }
         int i = 0;
-        std::thread t1([&]() {
-            c.write(d, countofbytes);
+        std::thread t1([&](){
+            i = c.write(d, countofbytes);
         });
         t1.join();
+        //printf("%d\n", i);
+        i = c.read(buffer, countofbytes);
         printf("%d\n", i);
-        COMSTAT stats;
-        for (int i = 0; i < countofbytes;) {
-            ClearCommError(c.port_handle, NULL, &stats);
-            int InQ = stats.cbInQue;
-            if (InQ != 0) {
-                int CoR = c.read(&buffer[i], InQ);
-                for(int j = 0; j < i; j++)
-                    if (d[i + j] != buffer[i + j]) {
-                        printf("Translated - %x, recieved - %x     %d == %d\n", d[i + j], buffer[i + j], i + j, d[i + j] == buffer[i + j]);
-                        e_counter++;
-                    }
-                i += InQ;
-                //printf("%d of %d\n", i, countofbytes);
+        
+        for (int i = 0; i < countofbytes; i++) {
+            if (d[i] != buffer[i]) {
+                printf("Translated - %x, recieved - %x     %d == %d\n", d[i], buffer[i], i, d[i] == buffer[i]);
+                e_counter++;
             }
         }
         printf("Errors - %d / Tests - %d\n", e_counter, countofbytes);
-        
-        Sleep(5000);
-        COMSTAT stats;
-        ClearCommError(c.port_handle, NULL, &stats);
-        printf("Readed: %d\n", stats.cbInQue);
     }
     else {
         printf("Can`t test closed port\n");
@@ -201,7 +190,7 @@ int _tmain(int argc, TCHAR* argv[]) {
 
     comiface.set_rate(CBR_256000);
     comiface.log_state();
-    for(int i = 0; i < 60;i++) mass_test_sync2(comiface);
+    for(int i = 0; i < 15;i++) mass_test_sync2(comiface);
 
     comiface.write(&rw_ch[0], 1);
     comiface.read(&buffer, 1);
