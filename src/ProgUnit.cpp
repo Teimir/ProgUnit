@@ -66,7 +66,7 @@ int mass_test_sync(ComIface& c) {
 int mass_test_sync2(ComIface& c) {
     int e_counter = 0;
     PurgeComm(c.port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);
-    const int countofbytes = 1024 * 68;
+    const int countofbytes = 1024 * 67;
     if (!c.is_not_open()) {
         byte d[countofbytes];
         byte buffer[countofbytes];
