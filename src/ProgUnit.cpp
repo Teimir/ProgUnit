@@ -26,7 +26,7 @@ bool auto_connection(ComIface& c, int to = 256, int from = 0) {
 }
 int mass_test_sync(ComIface& c) {
     int failures = 0;
-    const int byte_num = 1024;
+    const int byte_num = 1024 * 67;
     if (!c.is_not_open()) {
         //declare R & T
         byte T[byte_num];
@@ -36,7 +36,7 @@ int mass_test_sync(ComIface& c) {
             T[i] = i % 255;
         }
         //prepare port buffer
-        c.set_buffer(byte_num, byte_num, true);
+        c.set_buffer(byte_num*16535, byte_num * 16535, true);
         //read & write
         printf("WRITED: %d\n", c.write(T, byte_num));
         printf("READED: %d\n", c.read_block(R, byte_num));
@@ -110,7 +110,8 @@ int _tmain(int argc, TCHAR* argv[]) {
         {0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37},
         {0x38, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f}
     };
-    byte sw_ch[] = { 0xff, 0xf2 };
+    byte sw_ch[] = { 0xff, 0xf3 }; //256000
+    byte sw_ch2[] = { 0xff, 0xf4 }; //512000
     byte rw_ch[] = { 0xff, 0xf1 };
     byte buffer = 0;
     byte ebuffer[8];
@@ -120,18 +121,24 @@ int _tmain(int argc, TCHAR* argv[]) {
         exit(1);
     }
     comiface.log_state();
+    
+
+
+    
     //change rate
-    comiface.write(&sw_ch[0], 1);
+    comiface.write(&sw_ch2[0], 1);
     comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
-    comiface.write(&sw_ch[1], 1);
+    comiface.write(&sw_ch2[1], 1);
     comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
     //log
-    comiface.set_rate(CBR_115200);
+    //comiface.set_rate(CBR_256000);
+    comiface.set_rate(512000);
     comiface.log_state();
     //mass test
-    mass_test_sync(comiface);
+    for (int i = 0; i < 16; i++) mass_test_sync(comiface);
+    printf("Summary translated - %d Bytes\n", 16 * 67 * 1024);
     //Restore
     comiface.write(&rw_ch[0], 1);
     comiface.read_byte(&buffer);
@@ -140,6 +147,8 @@ int _tmain(int argc, TCHAR* argv[]) {
     comiface.read_byte(&buffer);
     printf("recieved - %02hhx\n", buffer);
         
+    
+
     /*
     int c = 0;
     for (int i = 0; i < numOfTests; ++i) {
@@ -214,6 +223,6 @@ int _tmain(int argc, TCHAR* argv[]) {
     rs.join();
     */
     comiface.close();
-    getchar();
+    //getchar();
     return (0);
 }
