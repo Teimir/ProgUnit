@@ -12,8 +12,7 @@ class ComIface {
         ComIface(const ComIface&) = delete;
         //why close() in ~ComIface() cause crashes?
         DWORD write(byte* data, int count);
-        DWORD read_byte(byte* buffer);
-        DWORD read_block(byte* buffer, int count);
+        DWORD read(byte* buffer, int count);
         bool open(int _port_num, bool log = true);
         void close();
         //set methods

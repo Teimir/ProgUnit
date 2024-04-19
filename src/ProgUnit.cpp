@@ -39,7 +39,7 @@ int mass_test_sync(ComIface& c) {
         c.set_buffer(byte_num, byte_num, true);
         //read & write
         printf("WRITED: %d\n", c.write(T, byte_num));
-        printf("READED: %d\n", c.read_block(R, byte_num));
+        printf("READED: %d\n", c.read(R, byte_num));
         for (int i = 0; i < byte_num; ++i) {
             if (T[i] != R[i]) {
                 printf("%d\tTranslated - %02hhx,\trecieved - %02hhx\tERROR\n", i, T[i], R[i]);
@@ -65,7 +65,7 @@ bool test(ComIface& c_rx, ComIface& c_tx, T* transmit, int N, int it_num = 0) {
     bool failed = true;
     DWORD state = c_tx.write(transmit, sizeof(T) * N);
     if (state == sizeof(T) * N) {
-        state = c_rx.read_byte(recieve);
+        state = c_rx.read(recieve, 1);
         if (state == sizeof(T) * N) {
             std::reverse(recieve, recieve + sizeof(T) * N);
             failed = memcmp(transmit, recieve, sizeof(T) * N);
@@ -122,10 +122,10 @@ int _tmain(int argc, TCHAR* argv[]) {
     comiface.log_state();
     //change rate
     comiface.write(&sw_ch[0], 1);
-    comiface.read_byte(&buffer);
+    comiface.read(&buffer, 1);
     printf("recieved - %02hhx\n", buffer);
     comiface.write(&sw_ch[1], 1);
-    comiface.read_byte(&buffer);
+    comiface.read(&buffer, 1);
     printf("recieved - %02hhx\n", buffer);
     //log
     comiface.set_rate(CBR_115200);
@@ -134,10 +134,10 @@ int _tmain(int argc, TCHAR* argv[]) {
     mass_test_sync(comiface);
     //Restore
     comiface.write(&rw_ch[0], 1);
-    comiface.read_byte(&buffer);
+    comiface.read(&buffer, 1);
     printf("recieved - %02hhx\n", buffer);
     comiface.write(&rw_ch[1], 1);
-    comiface.read_byte(&buffer);
+    comiface.read(&buffer, 1);
     printf("recieved - %02hhx\n", buffer);
         
     /*
