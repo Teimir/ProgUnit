@@ -91,6 +91,10 @@ DWORD ComIface::read(byte* buffer, int size) {
             CloseHandle(overlap.hEvent);
             return 0;
         }
+		status = WaitForSingleObject(overlap.hEvent, read_delay);
+		if (status == WAIT_ABANDONED || status == WAIT_FAILED) {
+			printf("WaitForSingleObject failed with error %d.\n", GetLastError());
+		}
         if (!GetOverlappedResult(port_handle, &overlap, &NumberOfBytesReaded, TRUE)) {
             printf("GetOverlappedResult failed with error %d.\n", GetLastError());
         }
