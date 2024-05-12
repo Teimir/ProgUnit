@@ -5,7 +5,7 @@ ComIface::ComIface(DWORD BaudRate, DWORD read_delay) : read_delay(read_delay) {
     dcb.DCBlength = sizeof(DCB);
     dcb.ByteSize = DATABITS_8;  //  data size, xmit and rcv
     dcb.Parity = PARITY_NONE;   //  parity bit
-    dcb.StopBits = ONE5STOPBITS;  //  stop bit
+    dcb.StopBits = ONESTOPBIT;  //  stop bit
 };
 bool ComIface::open(int _port_num, bool log) {
     //create port name
@@ -38,11 +38,11 @@ bool ComIface::open(int _port_num, bool log) {
     }
     //set port timings
     COMMTIMEOUTS timings{
-        1,      /* Maximum time between read chars. */
-        0,     /* Multiplier of characters.        */
-        0,     /* Constant in milliseconds.        */
-        0,      /* Multiplier of characters.        */
-        0       /* Constant in milliseconds.        */
+        10,      /* Maximum time between read chars. */
+        10,     /* Multiplier of characters.        */
+        10,     /* Constant in milliseconds.        */
+        10,      /* Multiplier of characters.        */
+        10       /* Constant in milliseconds.        */
     };
     SetCommTimeouts(port_handle, &timings);
     PurgeComm(port_handle, PURGE_RXCLEAR | PURGE_TXCLEAR);

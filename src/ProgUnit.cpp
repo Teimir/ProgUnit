@@ -115,30 +115,40 @@ int _tmain(int argc, TCHAR* argv[]) {
     byte rw_ch[] = { 0xff, 0xf1 };
     byte buffer = 0;
     byte ebuffer[8];
+    
+    
     auto_connection(comiface);
+    //comiface.open(12);
+    
     if (comiface.is_not_open()) {
         printf("No one COM-port is avalible\n");
         exit(1);
     }
     comiface.log_state();
     
+    //mass test
+    mass_test_sync(comiface);
 
-
-    
     //change rate
-    comiface.write(&sw_ch[0], 1);
+    comiface.write(&sw_ch2[0], 1);
     comiface.read(&buffer, 1);
     printf("recieved - %02hhx\n", buffer);
-    comiface.write(&sw_ch[1], 1);
+    comiface.write(&sw_ch2[1], 1);
     comiface.read(&buffer, 1);
     printf("recieved - %02hhx\n", buffer);
+    
     //log
     //comiface.set_rate(CBR_256000);
     comiface.set_rate(512000);
+    
     comiface.log_state();
+    
     //mass test
     for (int i = 0; i < 16; i++) mass_test_sync(comiface);
     printf("Summary translated - %d Bytes\n", 16 * 67 * 1024);
+
+
+
     //Restore
     comiface.write(&rw_ch[0], 1);
     comiface.read(&buffer, 1);
@@ -147,81 +157,7 @@ int _tmain(int argc, TCHAR* argv[]) {
     comiface.read(&buffer, 1);
     printf("recieved - %02hhx\n", buffer);
         
-    
-
-    /*
-    int c = 0;
-    for (int i = 0; i < numOfTests; ++i) {
-        c = test(comiface, comiface, &data[i % 4], 1, i) ? c + 1 : c;
-    }
-    printf("Errors - %d / Tests - %d\n", c, numOfTests);
-    //change rate
-    comiface.write(&sw_ch[0], 1);
-    comiface.read_byte(&buffer);
-    printf("recieved - %02hhx\n", buffer);
-    comiface.write(&sw_ch[1], 1);
-    comiface.read_byte(&buffer);
-    printf("recieved - %02hhx\n", buffer);
-    //while (buffer == 0) {
-    //    comiface.write(&sw_ch[1], 1);
-    //    comiface.read_byte(&buffer);
-    //    printf("recieved - %02hhx\t\n", buffer);
-    //}
-    comiface.set_rate(CBR_115200);
-    comiface.log_state();
-    
-    c = 0;
-    //_tprintf (TEXT("Serial port %s successfully reconfigured.\n"), pcCommPort);
-    for (int i = 0; i < numOfTests; i++) {
-        c = test(comiface, comiface, &data[i % 4], 1, i) ? c + 1 : c;
-    }
-    printf("Errors - %d / Tests - %d\n", c, numOfTests);
-
-    comiface.write(&rw_ch[0], 1);
-    comiface.read_byte(&buffer);
-    printf("recieved - %02hhx\n", buffer);
-    comiface.write(&rw_ch[1], 1);
-    comiface.read_byte(&buffer);
-    printf("recieved - %02hhx\n", buffer);
-    c = 0;
-    //test with 8 byte write/read
-    for (int i = 0; i < numOfTests; ++i) {
-        c = test(comiface, comiface, edata[i % 8], ARRAYSIZE(edata[i % 8]), i) ? c + 1 : c;
-    }
-    printf("Errors - %d / Tests - %d\n", c, numOfTests);
-
-
-    //mass_test_sync(comiface);
-    //critical way tests
-    std::thread ws([&comiface, edata]{
-        //WARNING: any write error will cause read error (and may even cause all next read iteration errors)
-        hpet wt;
-        int errors = 0;
-        for (int i = 0; i < 64; ++i) {
-            if (!comiface.write((byte*)edata + i, 1)) {
-                ++errors;
-            }
-        }
-        printf("WRITE\tTime: %d\tErrors - %d / Tests - %d\n", wt.get_ns_dt_strong().count(), errors, 64);
-    });
-    std::thread rs([&comiface, edata] {
-        //WARNING: any timing error will cause all next iteration fall into errors
-        hpet rt;
-        int errors = 0;
-        for (int i = 0; i < 64; ++i) {
-            byte buf;
-            if (!comiface.read_byte(&buf + i)) {
-                ++errors;
-            }
-            else if (buf != *((byte*)edata + i)) {
-                ++errors;
-            }
-        }
-        printf("READ\tTime: %d\tErrors - %d / Tests - %d\n", rt.get_ns_dt_strong().count(), errors, 64);
-    });
-    ws.join();
-    rs.join();
-    */
+  
     comiface.close();
     //getchar();
     return (0);
